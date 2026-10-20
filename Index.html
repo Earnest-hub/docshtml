@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XAUUSD CRT Robot · MT5 Expert Advisor</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: #0b0e14;
+      color: #e6edf3;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid #2a2f3a;
+      padding-bottom: 1.2rem;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      background: #1e2a3a;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 1.8rem;
+      color: #f0b90b;
+    }
+
+    .logo-text h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #f0b90b, #f8d44d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-text span {
+      font-size: 0.9rem;
+      color: #8b949e;
+      font-weight: 400;
+    }
+
+    .badge {
+      background: #1e2a3a;
+      padding: 0.4rem 1rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      color: #f0b90b;
+      border: 1px solid #3d4a5c;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* cards grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #141a24;
+      border-radius: 20px;
+      padding: 1.8rem 1.5rem;
+      border: 1px solid #252c38;
+      transition: 0.2s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .card:hover {
+      border-color: #3d4a5c;
+      transform: translateY(-2px);
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #f0f4fa;
+      border-left: 4px solid #f0b90b;
+      padding-left: 12px;
+    }
+
+    .card h2 i {
+      color: #f0b90b;
+      font-size: 1.2rem;
+    }
+
+    .risk-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px dashed #2a2f3a;
+      font-size: 0.95rem;
+    }
+
+    .risk-item:last-child {
+      border-bottom: none;
+    }
+
+    .risk-label {
+      color: #8b949e;
+    }
+
+    .risk-value {
+      font-weight: 600;
+      color: #e6edf3;
+      background: #1e2632;
+      padding: 0.1rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .risk-value.gold {
+      color: #f0b90b;
+    }
+
+    .risk-value.green {
+      color: #3fb950;
+    }
+
+    /* signal blocks */
+    .signal-step {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 1rem;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      background: #f0b90b;
+      color: #0b0e14;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-text {
+      font-size: 0.95rem;
+      color: #c9d1d9;
+    }
+
+    .step-text strong {
+      color: #f0f4fa;
+    }
+
+    /* code snippet styling */
+    .code-block {
+      background: #0d1117;
+      border-radius: 12px;
+      padding: 1.2rem;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: #c9d1d9;
+      overflow-x: auto;
+      border: 1px solid #252c38;
+      margin-top: 1rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .code-block .comment {
+      color: #6a737d;
+    }
+
+    .code-block .keyword {
+      color: #ff7b72;
+    }
+
+    .code-block .func {
+      color: #d2a8ff;
+    }
+
+    .code-block .var {
+      color: #79c0ff;
+    }
+
+    /* checklist */
+    .checklist {
+      list-style: none;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.5rem 0;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #1e2632;
+    }
+
+    .checklist li:last-child {
+      border-bottom: none;
+    }
+
+    .checklist i.fa-circle-check {
+      color: #3fb950;
+      font-size: 1.1rem;
+    }
+
+    .checklist i.fa-circle-exclamation {
+      color: #d29922;
+      font-size: 1.1rem;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: #6a737d;
+      font-size: 0.85rem;
+      border-top: 1px solid #1e2632;
+      padding-top: 2rem;
+    }
+
+    .badge-pill {
+      background: #1e2632;
+      color: #8b949e;
+      border-radius: 20px;
+      padding: 0.25rem 0.9rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      display: inline-block;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .badge-pill.gold {
+      background: #2a2513;
+      color: #f0b90b;
+      border: 1px solid #5c4d1a;
+    }
+
+    /* responsive */
+    @media (max-width: 700px) {
+      body {
+        padding: 1.5rem 1rem;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .logo-text h1 {
+        font-size: 1.5rem;
+      }
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-area">
+      <div class="logo-icon"><i class="fas fa-robot"></i></div>
+      <div class="logo-text">
+        <h1>XAUUSD CRT Expert Advisor</h1>
+        <span>MetaTrader 5 · Smart Money Concepts · Risk-First Execution</span>
+      </div>
+    </div>
+    <div class="badge">
+      <i class="fas fa-shield-halved"></i> 0.5% risk per trade · 1:2 RR min
+    </div>
+  </div>
+
+  <!-- QUICK SUMMARY / INTRO -->
+  <div class="grid-2" style="margin-bottom: 1.8rem;">
+    <div class="card" style="border-left: 4px solid #f0b90b;">
+      <h2><i class="fas fa-chart-line"></i> Trading Instrument & Timeframes</h2>
+      <div class="risk-item"><span class="risk-label">Instrument</span><span class="risk-value gold">XAUUSD (Gold)</span></div>
+      <div class="risk-item"><span class="risk-label">Higher Timeframe (Bias)</span><span class="risk-value">H4</span></div>
+      <div class="risk-item"><span class="risk-label">Entry Timeframe</span><span class="risk-value">M5</span></div>
+      <div class="risk-item"><span class="risk-label">Strategy</span><span class="risk-value">CRT / SMC Order Block + BOS</span></div>
+      <div class="risk-item"><span class="risk-label">Session Filter</span><span class="risk-value">London & New York (server-time converted)</span></div>
+      <div class="risk-item"><span class="risk-label">Spread Filter</span><span class="risk-value">Rejects unusually high spreads</span></div>
+      <div style="margin-top: 1rem;">
+        <span class="badge-pill gold"><i class="fas fa-check-circle"></i> One trade per valid setup</span>
+        <span class="badge-pill"><i class="fas fa-ban"></i> No martingale / grid</span>
+      </div>
+    </div>
+    <div class="card" style="border-left: 4px solid #3fb950;">
+      <h2><i class="fas fa-gauge-high"></i> Risk Management Rules</h2>
+      <div class="risk-item"><span class="risk-label">Risk per trade (default)</span><span class="risk-value gold">0.5%</span></div>
+      <div class="risk-item"><span class="risk-label">Maximum risk per trade</span><span class="risk-value">1.0%</span></div>
+      <div class="risk-item"><span class="risk-label">Maximum daily loss</span><span class="risk-value">2.0%</span></div>
+      <div class="risk-item"><span class="risk-label">Max open trades</span><span class="risk-value">1 – 2</span></div>
+      <div class="risk-item"><span class="risk-label">Consecutive loss stop</span><span class="risk-value">3 losses → stop for the day</span></div>
+      <div class="risk-item"><span class="risk-label">Stop-loss placement</span><span class="risk-value">Beyond swing high/low or OB invalidation</span></div>
+      <div class="risk-item"><span class="risk-label">Minimum reward-to-risk</span><span class="risk-value green">1 : 2</span></div>
+      <div class="risk-item"><span class="risk-label">Break-even (optional)</span><span class="risk-value">After reaching 1R</span></div>
+      <div class="risk-item"><span class="risk-label">Trailing stop (optional)</span><span class="risk-value">Only when strategy supports it</span></div>
+    </div>
+  </div>
+
+  <!-- SIGNAL LOGIC (CRT / SMC) -->
+  <div class="card" style="margin-bottom: 1.8rem;">
+    <h2><i class="fas fa-crosshairs"></i> Confirmed Entry Signal — CRT Rules</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+      <div class="signal-step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Direction filter:</strong> H4 bias confirms bullish or bearish structure (EMA / swing structure).</div>
+      </div>
+      <div class="signal-step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Rejection & confirmation:</strong> Price rejects a key level and confirms a move back into the range (CRT rules).</div>
+      </div>
+      <div class="signal-step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Market structure shift:</strong> Wait for BOS / CHoCH on M5; identify valid order block.</div>
+      </div>
+      <div class="signal-step">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>Entry trigger:</strong> Enter only after defined confirmation (e.g., rejection candle inside OB).</div>
+      </div>
+    </div>
+    <div style="margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+      <span class="badge-pill" style="background: #1e2a3a;"><i class="fas fa-arrow-right"></i> Break of Structure (BOS)</span>
+      <span class="badge-pill" style="background: #1e2a3a;"><i class="fas fa-arrow-right"></i> Order Block (OB) retest</span>
+      <span class="badge-pill" style="background: #1e2a3a;"><i class="fas fa-arrow-right"></i> Confirmation candle</span>
+      <span class="badge-pill" style="background: #1e2a3a;"><i class="fas fa-arrow-right"></i> No duplicate entries</span>
+    </div>
+  </div>
+
+  <!-- THREE COLUMN: LOT CALC, DAILY PROTECTION, EXECUTION -->
+  <div class="grid-3">
+    <div class="card">
+      <h2><i class="fas fa-calculator"></i> Lot Size Calculator</h2>
+      <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 1rem;">Position size derived from stop-loss distance, account equity, and instrument specs.</p>
+      <div class="risk-item"><span class="risk-label">Risk amount</span><span class="risk-value">0.5% of equity</span></div>
+      <div class="risk-item"><span class="risk-label">SL distance</span><span class="risk-value">From entry to invalidation</span></div>
+      <div class="risk-item"><span class="risk-label">Max lot cap</span><span class="risk-value">User defined</span></div>
+      <div class="risk-item"><span class="risk-label">Free margin check</span><span class="risk-value green"><i class="fas fa-check"></i> Yes</span></div>
+      <div class="risk-item"><span class="risk-label">Max slippage</span><span class="risk-value">Set in EA</span></div>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-shield"></i> Daily Equity Protection</h2>
+      <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 1rem;">Stops new entries when daily loss limit or consecutive loss limit is reached.</p>
+      <div class="risk-item"><span class="risk-label">Daily loss limit</span><span class="risk-value">2%</span></div>
+      <div class="risk-item"><span class="risk-label">Consecutive losses</span><span class="risk-value">3 → stop</span></div>
+      <div class="risk-item"><span class="risk-label">Reset</span><span class="risk-value">Next server day</span></div>
+      <div class="risk-item"><span class="risk-label">Open trades cap</span><span class="risk-value">1–2</span></div>
+      <div style="margin-top: 0.8rem;">
+        <span class="badge-pill gold"><i class="fas fa-lock"></i> No doubling after loss</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-server"></i> Broker & Execution</h2>
+      <div class="risk-item"><span class="risk-label">Compatibility</span><span class="risk-value">MT5, ECN/STP</span></div>
+      <div class="risk-item"><span class="risk-label">Min lot / step</span><span class="risk-value">Auto-adjusted</span></div>
+      <div class="risk-item"><span class="risk-label">Stop-level check</span><span class="risk-value green"><i class="fas fa-check"></i> Enforced</span></div>
+      <div class="risk-item"><span class="risk-label">Server time conv.</span><span class="risk-value">London / NY sessions</span></div>
+      <div class="risk-item"><span class="risk-label">Backtesting</span><span class="risk-value">Recommended (real ticks)</span></div>
+      <div class="risk-item"><span class="risk-label">Forward testing</span><span class="risk-value">Demo before live</span></div>
+    </div>
+  </div>
+
+  <!-- CODE FRAMEWORK SNIPPET -->
+  <div class="card" style="margin-bottom: 1.8rem;">
+    <h2><i class="fas fa-code"></i> MQL5 Core Framework — Risk Engine</h2>
+    <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 0.8rem;">The EA enforces hard risk limits before any order is sent. Below is a simplified snippet of the position sizing and daily protection logic.</p>
+    <div class="code-block">
+<span class="comment">// --- Risk & lot size calculation (0.5% default, capped at 1%) ---</span>
+<span class="keyword">double</span> <span class="func">CalculateLotSize</span>(<span class="keyword">double</span> slDistance) {
+   <span class="keyword">double</span> riskAmount = <span class="var">AccountInfoDouble</span>(ACCOUNT_EQUITY) * (InpRiskPercent / 100.0);
+   <span class="keyword">double</span> tickValue = <span class="var">symInfo.TickValue</span>();
+   <span class="keyword">double</span> tickSize  = <span class="var">symInfo.TickSize</span>();
+   <span class="keyword">double</span> lot = riskAmount / (slDistance / tickSize * tickValue);
+   <span class="comment">// normalize to broker step, enforce max lot cap</span>
+   <span class="keyword">return</span> <span class="func">MathMin</span>(lot, InpMaxLot);
+}
+
+<span class="comment">// --- Daily loss guard: stop trading after 2% drawdown ---</span>
+<span class="keyword">bool</span> <span class="func">IsTradingAllowed</span>() {
+   <span class="keyword">double</span> equity = <span class="var">AccountInfoDouble</span>(ACCOUNT_EQUITY);
+   <span class="keyword">double</span> dailyLossPct = (g_dailyStartEquity - equity) / g_dailyStartEquity * 100.0;
+   <span class="keyword">if</span> (dailyLossPct >= InpMaxDailyLossPct) <span class="keyword">return false</span>;
+   <span class="keyword">if</span> (g_consecutiveLosses >= InpMaxConsecLoss) <span class="keyword">return false</span>;
+   <span class="keyword">return true</span>;
+}
+    </div>
+  </div>
+
+  <!-- BACKTESTING & CHECKLIST -->
+  <div class="grid-2">
+    <div class="card">
+      <h2><i class="fas fa-flask"></i> Backtesting & Validation</h2>
+      <ul class="checklist">
+        <li><i class="fas fa-circle-check"></i> Test different market conditions (spreads, commissions)</li>
+        <li><i class="fas fa-circle-check"></i> Use historical data with real ticks</li>
+        <li><i class="fas fa-circle-check"></i> Forward test on demo account ≥ 1–2 months</li>
+        <li><i class="fas fa-circle-exclamation"></i> Verify broker stop-level & freeze-level</li>
+        <li><i class="fas fa-circle-exclamation"></i> Confirm server time offset for sessions</li>
+        <li><i class="fas fa-circle-check"></i> No martingale / grid recovery by default</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-clipboard-check"></i> Pre‑Launch Checklist</h2>
+      <ul class="checklist">
+        <li><i class="fas fa-circle-check"></i> Minimum lot size check (risk ≤ 0.5%)</li>
+        <li><i class="fas fa-circle-check"></i> SL beyond swing high/low or OB</li>
+        <li><i class="fas fa-circle-check"></i> 1:2 minimum RR enforced</li>
+        <li><i class="fas fa-circle-check"></i> Max 2 open trades, 1 per setup</li>
+        <li><i class="fas fa-circle-check"></i> Spread filter & session filter active</li>
+        <li><i class="fas fa-circle-check"></i> Free margin checked before order</li>
+        <li><i class="fas fa-circle-check"></i> Duplicate signal prevention (magic + time)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p><i class="fas fa-robot"></i> XAUUSD CRT Expert Advisor — MetaTrader 5 · Risk‑first architecture</p>
+    <p style="margin-top: 0.5rem; font-size: 0.8rem;">This is a specification & framework overview. Always backtest and forward test before live trading. Past performance is not indicative of future results.</p>
+  </div>
+
+</div>
+</body>
+  </html>
